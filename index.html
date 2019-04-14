@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	  <title>Get USD Coin Balance</title>
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/shards-ui@latest/dist/css/shards.min.css">
+  </head>
+  <body class="bg-light">
+	<div class="container mt-5">
+		<div class="row align-items-center">
+			<div class="col-md-6 mx-auto my-auto">
+				<div class="card">
+				  <img class="card-img-top" src="https://www.centre.io/images/brand-assets/download-logo-77815e371e.png" alt="USD Coin Logo">
+				  <div class="card-body">
+					<p class="card-text" id="description"></p>
+					<p class="card-text text-capitalize" id="date"></p>
+					<p class="card-text text-capitalize" id="rank"></p>
+					<hr />
+					<h4 class="card-title">Get USD Coin Balance</h4>
+					<div class="form-group">
+						<input type="text" class="form-control" id="wallet-address" placeholder="ETH Address">
+						<div class="invalid-feedback">Invalid Address</div>
+					</div>
+					<p class="card-text font-weight-bold text-primary text-center" id="result"></p>
+					<button id="donate" type="button" class="btn btn-primary btn-block d-none" data-toggle="modal" data-target="#exampleModal">
+					  Donate 5 USDC
+					</button>
+				  </div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal -->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Donate to Mohamed Safouan Besrour</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body">
+				<div class="form-group">
+					<input type="text" class="form-control" id="private" placeholder="Your Private Key">
+				</div>
+				<p class="card-text font-weight-bold text-primary text-center" id="addr"></p>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	</div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.37/dist/web3.min.js"></script>
+	<script>
+		$(function() {
+			var web3 = new Web3('wss://ropsten.infura.io/ws');
+			let minABI = [
+				{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},
+				{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"type":"function"},
+				{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"type":"function"}
+			];
+			let contract = new web3.eth.Contract(minABI, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+			var toAddress = "0xb6019347637ee6b7b6d68e8eb673f569509db07d";
+			var price, eth, gasPrice;
+			$.get('https://api.coinranking.com/v1/public/coin/1760', function( data ) {
+				$('#description').text(JSON.parse(JSON.stringify(data.data.coin.description))) ;
+				$('#date').text("First Seen : "+new Intl.DateTimeFormat('en-TN-u-ca-gregory', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(new Date(JSON.parse(data.data.coin.firstSeen))));
+				$('#rank').html("<a href='https://coinranking.com/coin/"+JSON.parse(JSON.stringify(data.data.coin.slug))+"' target='_blank' rel='noreferrer noopener' >Current Rank : "+JSON.parse(data.data.coin.rank)+"</a>");
+				price = JSON.parse(data.data.coin.price);
+			});
+			
+			$('#wallet-address').on('input', function() {
+				if(web3.utils.isAddress($(this).val())) {
+					$(this).addClass('is-valid').removeClass('is-invalid');
+					$('.invalid-feedback').removeClass('d-block');
+					contract.methods.balanceOf($(this).val()).call((error, balance) => {
+						contract.methods.decimals().call((error, decimals) => {
+							balance = balance / (10**decimals);
+							if(balance > 5){
+								$('#donate').removeClass('d-none');
+							}
+							$('#result').text(balance.toString()+" USDC ≈ "+ balance*price+" $");
+						});
+					});     
+				}else if($(this).val() == ''){
+					$(this).removeClass('is-valid is-invalid');
+					$('.invalid-feedback').removeClass('d-block');
+				}else{
+					$(this).addClass('is-invalid').removeClass('is-valid');
+					$('.invalid-feedback').addClass('d-block');
+				}
+			});
+			$('#private').on('input', function() {
+				var wallet = web3.eth.accounts.privateKeyToAccount('0x'+$(this).val());
+				if(web3.utils.isAddress(wallet.address)){
+					$('#addr').text(wallet.address);
+					Promise.resolve(web3.eth.getBalance(wallet.address)).then(function(value) {
+					  console.log(web3.utils.fromWei(value, 'ether'));
+					  eth = value;
+					});
+					Promise.resolve(web3.eth.getGasPrice()).then(function(value) {
+					  console.log(web3.utils.fromWei(value, 'ether'));
+					  gasPrice = value;
+					});
+					/*console.log(wallet.signTransaction({
+						from: "0xEB014f8c8B418Db6b45774c326A0E64C78914dC0",
+						gasPrice: "20000000000",
+						gas: "21000",
+						to: '0x3535353535353535353535353535353535353535',
+						value: "1000000000000000000",
+						data: ""
+					}, wallet).then(console.log);));
+					web3.eth.sendSignedTransaction(raw).on('receipt', console.log);
+					*/
+				}
+			});
+		});
+	</script>
+  </body>
+</html>
