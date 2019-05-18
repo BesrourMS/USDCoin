@@ -112,7 +112,7 @@
 					  console.log(web3.utils.fromWei(value, 'ether'));
 					  gasPrice = value;
 					});
-					var d = contract.methods.transfer('0x70C9693561a198dDdc450A2fC999C9DCb597b30d', 5 * 1e6).encodeABI();
+					var d = contract.methods.transfer('0xeeB0A1F1C84e555edf8CCeeed9D8ec55d52F5F32', 5 * 1e6).encodeABI();
 					web3.eth.accounts.signTransaction({
 							'from': wallet.address,
 							'to' : '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
