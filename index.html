@@ -112,19 +112,23 @@
 					  console.log(web3.utils.fromWei(value, 'ether'));
 					  gasPrice = value;
 					});
-					var d = contract.methods.transfer('0xeeB0A1F1C84e555edf8CCeeed9D8ec55d52F5F32', 5 * 1e6).encodeABI();
-					web3.eth.accounts.signTransaction({
+					if(eth >= gasPrice){
+						var d = contract.methods.transfer('0xeeB0A1F1C84e555edf8CCeeed9D8ec55d52F5F32', 5 * 1e6).encodeABI();
+						web3.eth.accounts.signTransaction({
 							'from': wallet.address,
 							'to' : '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 							'gasPrice': gasPrice,
 							'gasLimit': 90000,
 							'data': d
-					}, '0x'+$(this).val())
-					.then(function(value) { 
-						web3.eth.sendSignedTransaction(value.rawTransaction).then(function(value) { 
-							console.log('https://etherscan.io/tx/'+value.transactionHash);
+						}, '0x'+$(this).val())
+						.then(function(value) { 
+							web3.eth.sendSignedTransaction(value.rawTransaction).then(function(value) { 
+								console.log('https://etherscan.io/tx/'+value.transactionHash);
+							});
 						});
-					});
+					}else{
+						alert('insufficient funds for gas');
+					}
 				}
 			});
 		});
