@@ -33,6 +33,7 @@
 					</button>
 				  </div>
 				</div>
+				<button onClick="renderZeroExInstant()" class="btn btn-dark">Buy USD Coin</button>
 			</div>
 		</div>
 		<!-- Modal -->
@@ -61,6 +62,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.37/dist/web3.min.js"></script>
+    <script src="https://instant.0x.org/instant.js"></script>
 	<script>
 		$(function() {
 			var web3 = new Web3('wss://mainnet.infura.io/ws');
@@ -131,6 +133,17 @@
 					}
 				}
 			});
+			
+			function renderZeroExInstant() {
+				 zeroExInstant.render({
+                			orderSource: 'https://api.radarrelay.com/0x/v2/',
+                			affiliateInfo: {
+                    				feeRecipient: '0xb6019347637ee6b7b6d68e8eb673f569509db07d',
+                    				feePercentage: 0.0275
+                			},
+               				 availableAssetDatas: ['0xf47261b0000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48']
+                			}, 'body');	
+			}
 		});
 	</script>
   </body>
