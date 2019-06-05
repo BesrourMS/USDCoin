@@ -8,6 +8,6 @@ If you don't have USD Coin you can buy it via 0x and I will get 2.75% of the val
 
 If you don't have enough gas to make transaction, you can buy some ETH via changelly with your credit card
 
-Feel free to fork this project or to improve the source code
+Feel free to fork this project to improve the source code
 
 Donate to : `0xB6019347637eE6B7b6d68E8eb673f569509Db07d`
